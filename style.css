@@ -1,0 +1,35 @@
+/* Styling goes in this file */
+
+body {
+	font-family: "Arial";
+}
+
+.centered {
+	text-align: center;
+	font-size: 36px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.left-column {
+    width: 60%;
+    text-align: center;
+}
+  
+.right-column {
+    width: 40%;
+    text-align: left;
+}
+
+.tooltip {
+
+}
+
+.acknowledgements {
+	text-align: center;
+	font-size: 24px;
+}
+
