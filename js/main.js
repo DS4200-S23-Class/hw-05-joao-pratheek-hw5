@@ -1,24 +1,8 @@
 /*
 D3 Code 
 Joao & Pratheek 
-Modified: 02/20/2023
+Modified: 02/21/2023
 */
-
-//###############################################################
-// Reading data from a file 
-// So far we've seen how to use hardcoded data. Now, we will 
-// look at plotting data read in from a file. To read data from 
-// another file, you will need to set up a python simple server
-// in the same directory as your code and data. To do this:
-//  (1) Open your terminal or command line 
-//  (2) Navigate to the directory your code is in 
-//  (3) Run the command (it will vary slightle depending on how 
-//      python is set up for you): python3 -m http.server
-//  (4) You will see: 
-//        Serving HTTP on :: port 8000 (http://[::]:8000/) ...
-//  (5) Naviage to localhost:8000 in the browser to see your
-//      webpage
-//###############################################################
 
 // First, we need a frame  
 const FRAME_HEIGHT = 500;
@@ -42,61 +26,36 @@ function build_interative_scatter() {
 d3.csv("data/scatter-data.csv").then((data) => {
 
   // find max X
-  const MAX_X2 = d3.max(data, (d) => { return parseInt(d.x); });
+  const MAX_X = d3.max(data, (d) => { return parseInt(d.x); });
           // Note: data read from csv is a string, so you need to
           // cast it to a number if needed 
 
   // find max Y
-  const MAX_Y2 = d3.max(data, (d) => { return parseInt(d.y); });
+  const MAX_Y = d3.max(data, (d) => { return parseInt(d.y); });
   
   // Define scale functions that maps our data values 
   // (domain) to pixel values (range)
-  const X_SCALE2 = d3.scaleLinear() 
-                    .domain([0, 10]) // add some padding  
+  const X_SCALE = d3.scaleLinear() 
+                    .domain([0, 10])
                     .range([0, VIS_WIDTH]); 
 
-  const Y_SCALE2 = d3.scaleLinear() 
-                    .domain([10, 0]) // add some padding  
+  const Y_SCALE = d3.scaleLinear() 
+                    .domain([10, 0]) 
                     .range([0, VIS_HEIGHT]); 
 
   // Use X_SCALE to plot our points
-  FRAME1.selectAll("points")  
-      .data(data) // passed from .then  
+  FRAME1.selectAll("circle")  
+      .data(data)
       .enter()       
       .append("circle")  
-        .attr("cx", (d) => { return (X_SCALE2(d.x) + MARGINS.left); }) 
-        .attr("cy", (d) => { return (Y_SCALE2(d.y) + MARGINS.top); })  
+        .attr("cx", (d) => { return (X_SCALE(d.x) + MARGINS.left); }) 
+        .attr("cy", (d) => { return (Y_SCALE(d.y) + MARGINS.top); })  
         .attr("r", 10)
         .attr("class", "point");
 
-  // Tooltip
-  const TOOLTIP = d3.select("#vis1")
-                      .append("div")
-                        .attr("class", "tooltip")
-                        .style("opacity", 0);
-
-  function handleMouseover(event, d) {
-    d3.select(this)
-      .attr("fill", "blueviolet")
-    TOOLTIP.style("opacity", 1);
-  }
-
-  function handleMouseleave(event, d) {
-    d3.select(this)
-      .attr("fill", "black")
-    TOOLTIP.style("opacity", 1);
-  }
-
-  function handleClick(event, d) {
-    const circle = d3.select(this);
-    const border = circle.attr("stroke-width") == "5";
-    circle.attr("stroke-width", border ? "0" : "5")
-          .attr("stroke", border ? "none" : "red");
-  }
-
   // Add event listeners
-  FRAME1.selectAll(".point")
-          .on("mouseover", handleMouseover) //add event listeners
+  FRAME1.selectAll("circle")
+          .on("mouseover", handleMouseover)
           .on("mouseleave", handleMouseleave)
           .on("click", handleClick);
 
@@ -104,23 +63,40 @@ d3.csv("data/scatter-data.csv").then((data) => {
   FRAME1.append("g") 
         .attr("transform", "translate(" + MARGINS.left + 
               "," + (VIS_HEIGHT + MARGINS.top) + ")") 
-        .call(d3.axisBottom(X_SCALE2).ticks(8)) 
+        .call(d3.axisBottom(X_SCALE).ticks(8)) 
           .attr("font-size", '20px');
 
   // Add Y-axis to the vis  
   FRAME1.append("g") 
         .attr("transform", "translate(" + MARGINS.left + 
               "," + MARGINS.top + ")") 
-        .call(d3.axisLeft(Y_SCALE2).ticks(8)) 
+        .call(d3.axisLeft(Y_SCALE).ticks(8)) 
           .attr("font-size", '20px'); 
 
   });
-
 }
 
 // Call function 
 build_interative_scatter();
 
+function handleMouseover(event, d) {
+  d3.select(this)
+    .attr("fill", "blueviolet");
+}
+
+function handleMouseleave(event, d) {
+  d3.select(this)
+    .attr("fill", "black");
+}
+
+function handleClick(event, d) {
+  const circle = d3.select(this);
+  const border = circle.attr("stroke-width") == "5";
+  circle.attr("stroke-width", border ? "0" : "5")
+        .attr("stroke", border ? "none" : "red");
+
+  d3.select("#previous-click").text("Last Point Clicked: (" + d.x + "," + d.y + ")");
+}
 
 const rightColumn = d3.select(".right-column");
 
@@ -166,8 +142,42 @@ ySelect.selectAll("option")
     .attr("value", (d) => d)
     .text((d, i) => i+1);
 
-rightColumn.append("button")
-  .attr("type", "button")
-  .attr("id", "subButton")
-  .text("Add Point")
-  .on("click", addPoint);
+function handleAddPoint() {
+
+  const X_SCALE = d3.scaleLinear() 
+                    .domain([0, 10])
+                    .range([0, VIS_WIDTH]); 
+
+  const Y_SCALE = d3.scaleLinear() 
+                    .domain([10, 0]) 
+                    .range([0, VIS_HEIGHT]);
+
+  const xValue = d3.select("#x-value").node().value;
+  const yValue = d3.select("#y-value").node().value;
+
+  const newData = { x: xValue, y: yValue };
+
+  FRAME1.append("circle")
+        .attr("cx", X_SCALE(newData.x) + MARGINS.left) 
+        .attr("cy", Y_SCALE(newData.y) + MARGINS.top)  
+        .attr("r", 10)
+        .attr("class", "point")
+          .on("mouseover", handleMouseover)
+          .on("mouseleave", handleMouseleave)
+          .on("click", function(event, d) {
+            
+            const circle = d3.select(this);
+            const border = circle.attr("stroke-width") == "5";
+            
+            circle.attr("stroke-width", border ? "0" : "5")
+                  .attr("stroke", border ? "none" : "red");
+
+            d3.select("#previous-click").text("Last Point Clicked: (" + newData.x + "," + newData.y + ")");
+          });
+}
+
+const addButton = rightColumn.append("button")
+  .attr("id", "button")
+  .text("Add Point");
+
+addButton.on("click", handleAddPoint);
