@@ -24,6 +24,13 @@ body {
     text-align: left;
 }
 
+.tooltip {
+  position: absolute;	
+  background-color: grey;
+  padding: 5px;
+}
+
+
 .acknowledgements {
 	text-align: center;
 	font-size: 24px;
