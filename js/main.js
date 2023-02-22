@@ -181,3 +181,29 @@ const addButton = rightColumn.append("button")
   .text("Add Point");
 
 addButton.on("click", handleAddPoint);
+
+
+
+// New frame  
+const FRAME_HEIGHT2 = 500;
+const FRAME_WIDTH2 = 500; 
+const MARGINS2 = {left: 50, right: 50, top: 50, bottom: 50};
+
+// Let's do another example, with a scale 
+const VIS_HEIGHT2 = FRAME_HEIGHT2 - MARGINS2.top - MARGINS2.bottom;
+const VIS_WIDTH2 = FRAME_WIDTH2 - MARGINS2.left - MARGINS2.right; 
+
+const FRAME2 = d3.select("#vis2")
+                  .append("svg")
+                    .attr("height", FRAME_HEIGHT2)
+                    .attr("width", FRAME_WIDTH2)
+                    .attr("class", "frame"); 
+
+// builds scatter plot
+function build_interative_bargraph() {
+
+// read data and create plot
+d3.csv("data/bar-data.csv").then((data) => {
+
+});
+}
