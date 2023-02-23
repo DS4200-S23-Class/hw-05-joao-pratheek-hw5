@@ -26,10 +26,14 @@ body {
 
 .tooltip {
   position: absolute;	
-  background-color: grey;
+  background-color: lightgrey;
   padding: 5px;
+  border-width: 3px;
+  border-style: solid;
+  border-color: black;
+  font-family: "Arial";
+  font-size: 18px;
 }
-
 
 .acknowledgements {
 	text-align: center;
